@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>충북대 에코 분리수거</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== 온보딩 화면 ===== -->
+<div id="screen-onboarding" class="screen active">
+  <div class="onboarding-bg">
+    <div class="leaf leaf1">🌿</div>
+    <div class="leaf leaf2">♻️</div>
+    <div class="leaf leaf3">🌱</div>
+  </div>
+  <div class="onboarding-content">
+    <div class="logo-wrap">
+      <div class="logo-icon">♻</div>
+      <h1 class="logo-title">에코분리</h1>
+      <p class="logo-sub">충북대학교 전용 분리수거 가이드</p>
+    </div>
+    <div class="onboarding-card">
+      <p class="onboarding-desc">지역과 거주지를 설정하면<br/>맞춤 분리수거 방법을 알려드려요!</p>
+      <button class="btn-primary" onclick="showScreen('screen-location')">시작하기 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 위치 설정 화면 ===== -->
+<div id="screen-location" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('screen-onboarding')">←</button>
+    <h2>위치 설정</h2>
+  </div>
+  <div class="content">
+    <div class="section-title">🏫 소속 대학</div>
+    <div class="option-grid">
+      <button class="option-btn active" data-group="university" data-value="충북대학교">충북대학교</button>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🏠 거주지 유형</div>
+    <div class="option-grid">
+      <button class="option-btn" data-group="residence" data-value="기숙사" onclick="selectOption(this)">기숙사</button>
+      <button class="option-btn" data-group="residence" data-value="자취방" onclick="selectOption(this)">자취방</button>
+      <button class="option-btn" data-group="residence" data-value="본가" onclick="selectOption(this)">본가</button>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">📍 지역 선택</div>
+    <div class="option-grid">
+      <button class="option-btn" data-group="region" data-value="청주시 흥덕구" onclick="selectOption(this)">청주 흥덕구</button>
+      <button class="option-btn" data-group="region" data-value="청주시 청원구" onclick="selectOption(this)">청주 청원구</button>
+      <button class="option-btn" data-group="region" data-value="청주시 상당구" onclick="selectOption(this)">청주 상당구</button>
+      <button class="option-btn" data-group="region" data-value="청주시 서원구" onclick="selectOption(this)">청주 서원구</button>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🎓 단과대학</div>
+    <select id="college-select" class="select-input">
+      <option value="">선택하세요</option>
+      <option value="전자정보대학">전자정보대학</option>
+      <option value="공과대학">공과대학</option>
+      <option value="경영대학">경영대학</option>
+      <option value="자연과학대학">자연과학대학</option>
+      <option value="인문대학">인문대학</option>
+      <option value="사회과학대학">사회과학대학</option>
+      <option value="농업생명환경대학">농업생명환경대학</option>
+      <option value="수의과대학">수의과대학</option>
+      <option value="의과대학">의과대학</option>
+      <option value="사범대학">사범대학</option>
+      <option value="예술대학">예술대학</option>
+    </select>
+
+    <button class="btn-primary" style="margin-top:32px" onclick="saveLocation()">설정 완료</button>
+  </div>
+</div>
+
+<!-- ===== 메인 화면 ===== -->
+<div id="screen-main" class="screen">
+  <div class="main-header">
+    <div class="main-header-top">
+      <div>
+        <div class="location-badge" onclick="showScreen('screen-location')">
+          <span id="location-text">📍 위치 미설정</span> ✎
+        </div>
+        <h2 class="main-title">안녕하세요! 🌱</h2>
+      </div>
+      <div class="point-badge">
+        <div class="point-label">에코포인트</div>
+        <div class="point-value" id="main-points">0P</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- 오늘 현황 -->
+    <div class="today-card">
+      <div class="today-info">
+        <span class="today-label">오늘 스캔</span>
+        <span class="today-count" id="today-count">0 / 100P</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- 바코드 스캔 버튼 -->
+    <button class="scan-btn" onclick="showScreen('screen-scan')">
+      <div class="scan-icon">⬛</div>
+      <div class="scan-text">바코드 / QR 스캔</div>
+      <div class="scan-sub">스캔하면 에코포인트 적립!</div>
+    </button>
+
+    <!-- 음성 검색 -->
+    <button class="voice-btn" onclick="startVoiceSearch()">
+      🎤 음성으로 제품 검색
+    </button>
+
+    <!-- 빠른 가이드 -->
+    <div class="section-title">♻️ 재질별 빠른 가이드</div>
+    <div class="guide-grid">
+      <div class="guide-card" onclick="showMaterialGuide('플라스틱')">
+        <div class="guide-emoji">🧴</div>
+        <div class="guide-name">플라스틱</div>
+      </div>
+      <div class="guide-card" onclick="showMaterialGuide('유리')">
+        <div class="guide-emoji">🫙</div>
+        <div class="guide-name">유리</div>
+      </div>
+      <div class="guide-card" onclick="showMaterialGuide('캔')">
+        <div class="guide-emoji">🥫</div>
+        <div class="guide-name">캔/철</div>
+      </div>
+      <div class="guide-card" onclick="showMaterialGuide('종이')">
+        <div class="guide-emoji">📦</div>
+        <div class="guide-name">종이</div>
+      </div>
+      <div class="guide-card" onclick="showMaterialGuide('음식물')">
+        <div class="guide-emoji">🍗</div>
+        <div class="guide-name">음식물</div>
+      </div>
+      <div class="guide-card" onclick="showMaterialGuide('일반쓰레기')">
+        <div class="guide-emoji">🗑️</div>
+        <div class="guide-name">일반쓰레기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 탭 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('home')">🏠<span>홈</span></button>
+    <button class="tab-btn" onclick="switchTab('scan')">⬛<span>스캔</span></button>
+    <button class="tab-btn" onclick="switchTab('ranking')">🏆<span>랭킹</span></button>
+    <button class="tab-btn" onclick="switchTab('mypage')">👤<span>MY</span></button>
+  </div>
+</div>
+
+<!-- ===== 스캔 화면 ===== -->
+<div id="screen-scan" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('screen-main')">←</button>
+    <h2>바코드 스캔</h2>
+  </div>
+  <div class="content">
+    <div class="camera-area" id="camera-area">
+      <div class="camera-frame">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+        <div class="scan-line"></div>
+        <p class="camera-hint">카메라로 바코드를 비춰주세요</p>
+      </div>
+      <video id="camera-video" autoplay playsinline style="display:none"></video>
+    </div>
+
+    <div class="scan-actions">
+      <button class="btn-primary" onclick="startCamera()">📷 카메라 켜기</button>
+      <div class="divider">또는</div>
+      <div class="section-title">🔍 직접 선택해보기 (데모)</div>
+      <div class="barcode-demo-list">
+        <button class="barcode-demo-btn" onclick="scanBarcode('8801111909756')">
+          <span class="barcode-num">8801111909756</span>
+          <span class="barcode-name">칠성사이다 500ml</span>
+        </button>
+        <button class="barcode-demo-btn" onclick="scanBarcode('8801043014788')">
+          <span class="barcode-num">8801043014788</span>
+          <span class="barcode-name">농심 신라면 봉지</span>
+        </button>
+        <button class="barcode-demo-btn" onclick="scanBarcode('8801104230119')">
+          <span class="barcode-num">8801104230119</span>
+          <span class="barcode-name">제주삼다수 500ml</span>
+        </button>
+        <button class="barcode-demo-btn" onclick="scanBarcode('QR_CAMPUS_CUP')">
+          <span class="barcode-num">QR_CAMPUS_CUP</span>
+          <span class="barcode-name">개신문화관 카페 컵</span>
+        </button>
+        <button class="barcode-demo-btn" onclick="scanBarcode('8801115114719')">
+          <span class="barcode-num">8801115114719</span>
+          <span class="barcode-name">코카콜라 캔 355ml</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 체크리스트 화면 ===== -->
+<div id="screen-checklist" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('screen-scan')">←</button>
+    <h2>분리수거 가이드</h2>
+  </div>
+  <div class="content">
+    <div class="product-card" id="product-card">
+      <div class="product-emoji" id="product-emoji">♻️</div>
+      <div class="product-info">
+        <div class="product-name" id="product-name">제품명</div>
+        <div class="product-material" id="product-material">재질</div>
+        <div class="product-barcode" id="product-barcode"></div>
+      </div>
+    </div>
+
+    <div class="guide-tip" id="guide-tip"></div>
+
+    <div class="section-title">✅ 체크리스트</div>
+    <div id="checklist-items"></div>
+
+    <div class="voice-guide-btn-wrap">
+      <button class="voice-guide-btn" onclick="speakGuide()">🔊 음성으로 듣기</button>
+    </div>
+
+    <button class="btn-primary btn-complete" id="btn-complete" onclick="completeChecklist()" disabled>
+      완료! 에코포인트 적립 (+1P)
+    </button>
+  </div>
+</div>
+
+<!-- ===== 재질 가이드 화면 ===== -->
+<div id="screen-material" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('screen-main')">←</button>
+    <h2 id="material-title">재질 가이드</h2>
+  </div>
+  <div class="content" id="material-content"></div>
+</div>
+
+<!-- ===== 랭킹 화면 ===== -->
+<div id="screen-ranking" class="screen">
+  <div class="header">
+    <h2>🏆 단과대 랭킹</h2>
+  </div>
+  <div class="content">
+    <div class="ranking-my-college" id="ranking-my-college"></div>
+    <div id="ranking-list"></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn" onclick="switchTab('home')">🏠<span>홈</span></button>
+    <button class="tab-btn" onclick="switchTab('scan')">⬛<span>스캔</span></button>
+    <button class="tab-btn active" onclick="switchTab('ranking')">🏆<span>랭킹</span></button>
+    <button class="tab-btn" onclick="switchTab('mypage')">👤<span>MY</span></button>
+  </div>
+</div>
+
+<!-- ===== MY 화면 ===== -->
+<div id="screen-mypage" class="screen">
+  <div class="header">
+    <h2>👤 MY 에코</h2>
+  </div>
+  <div class="content">
+    <div class="mypage-profile">
+      <div class="mypage-avatar">🌱</div>
+      <div class="mypage-college" id="mypage-college">단과대 미설정</div>
+      <div class="mypage-region" id="mypage-region">지역 미설정</div>
+    </div>
+    <div class="mypage-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0P</div>
+        <div class="stat-label">총 포인트</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-today">0P</div>
+        <div class="stat-label">오늘 적립</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-scans">0회</div>
+        <div class="stat-label">총 스캔</div>
+      </div>
+    </div>
+
+    <div class="section-title">🎁 포인트 사용처</div>
+    <div class="reward-list">
+      <div class="reward-item">
+        <div class="reward-emoji">☕</div>
+        <div class="reward-info">
+          <div class="reward-name">개신문화관 카페 아메리카노</div>
+          <div class="reward-point">500P</div>
+        </div>
+      </div>
+      <div class="reward-item">
+        <div class="reward-emoji">🍱</div>
+        <div class="reward-info">
+          <div class="reward-name">학생식당 식권 할인</div>
+          <div class="reward-point">300P</div>
+        </div>
+      </div>
+      <div class="reward-item">
+        <div class="reward-emoji">🖨️</div>
+        <div class="reward-info">
+          <div class="reward-name">도서관 복사/프린트</div>
+          <div class="reward-point">100P</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-outline" onclick="showScreen('screen-location')">📍 위치 재설정</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn" onclick="switchTab('home')">🏠<span>홈</span></button>
+    <button class="tab-btn" onclick="switchTab('scan')">⬛<span>스캔</span></button>
+    <button class="tab-btn" onclick="switchTab('ranking')">🏆<span>랭킹</span></button>
+    <button class="tab-btn active" onclick="switchTab('mypage')">👤<span>MY</span></button>
+  </div>
+</div>
+
+<!-- ===== 토스트 ===== -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
