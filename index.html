@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -165,7 +166,8 @@
   </div>
   <div class="content">
     <div class="camera-area" id="camera-area">
-      <div class="camera-frame">
+      <div id="qr-reader"></div>
+      <div class="camera-frame" id="camera-placeholder">
         <div class="corner tl"></div>
         <div class="corner tr"></div>
         <div class="corner bl"></div>
@@ -173,11 +175,11 @@
         <div class="scan-line"></div>
         <p class="camera-hint">카메라로 바코드를 비춰주세요</p>
       </div>
-      <video id="camera-video" autoplay playsinline style="display:none"></video>
     </div>
 
     <div class="scan-actions">
-      <button class="btn-primary" onclick="startCamera()">📷 카메라 켜기</button>
+      <button class="btn-primary" id="camera-btn" onclick="startCamera()">📷 카메라 켜기</button>
+      <button class="btn-outline" id="stop-btn" onclick="stopCamera()" style="display:none;margin-top:8px">⏹ 카메라 끄기</button>
       <div class="divider">또는</div>
       <div class="section-title">🔍 직접 선택해보기 (데모)</div>
       <div class="barcode-demo-list">

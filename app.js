@@ -334,17 +334,44 @@ function startVoiceSearch() {
 }
 
 // ===== 카메라 =====
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    const video = document.getElementById('camera-video');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    document.querySelector('.camera-frame').style.display = 'none';
-    showToast('📷 카메라가 켜졌어요! (데모에서는 아래 목록으로 스캔하세요)');
-  } catch (e) {
+let html5QrCode = null;
+
+function startCamera() {
+  const placeholder = document.getElementById('camera-placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+  document.getElementById('camera-btn').style.display = 'none';
+  document.getElementById('stop-btn').style.display = 'block';
+
+  html5QrCode = new Html5Qrcode('qr-reader');
+  html5QrCode.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 220, height: 220 } },
+    (decodedText) => {
+      stopCamera();
+      const product = PRODUCTS[decodedText];
+      if (product) {
+        scanBarcode(decodedText);
+      } else {
+        showToast('⚠️ DB에 없는 제품이에요. 아래 목록을 이용해주세요!');
+      }
+    },
+    () => {}
+  ).catch(() => {
     showToast('카메라 접근 권한이 필요해요');
+    stopCamera();
+  });
+  showToast('📷 카메라가 켜졌어요! 바코드를 비춰주세요');
+}
+
+function stopCamera() {
+  if (html5QrCode) {
+    html5QrCode.stop().catch(() => {});
+    html5QrCode = null;
   }
+  document.getElementById('camera-btn').style.display = 'block';
+  document.getElementById('stop-btn').style.display = 'none';
+  const placeholder = document.getElementById('camera-placeholder');
+  if (placeholder) placeholder.style.display = 'flex';
 }
 
 // ===== 재질 가이드 =====
